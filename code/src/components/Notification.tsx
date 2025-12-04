@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { Check, X } from './Icons'; // Import the icons
 
 interface NotificationProps {
   message: string;
@@ -10,25 +11,17 @@ interface NotificationProps {
 
 export default function Notification({ message, type, onClose }: NotificationProps) {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 5000); // La notification disparaît après 5 secondes
-
+    const timer = setTimeout(onClose, 3000); // 3 seconds as in prototype
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const baseClasses = 'fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-transform transform';
-  const typeClasses = {
-    success: 'bg-green-500',
-    error: 'bg-red-500',
-  };
+  const bgClass = type === 'error' ? 'bg-red-500' : 'bg-green-600'; // Using green-600 as in prototype
+  const Icon = type === 'success' ? Check : X; // Choose icon based on type
 
   return (
-    <div className={`${baseClasses} ${typeClasses[type]} animate-slide-in`}>
-      <div className="flex justify-between items-center">
-        <span>{message}</span>
-        <button onClick={onClose} className="ml-4 font-bold">X</button>
-      </div>
+    <div className={`toast ${bgClass} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 fade-in`}>
+      <Icon />
+      <span>{message}</span>
     </div>
   );
 }
