@@ -1,5 +1,5 @@
 // src/hooks/useAuth.ts
-import { useEffect, useState, useContext, createContext, ReactNode } from 'react';
+import React, { useEffect, useState, useContext, createContext, ReactNode } from 'react';
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
