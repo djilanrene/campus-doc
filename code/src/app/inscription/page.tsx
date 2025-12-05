@@ -5,22 +5,22 @@ import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../../services/firebase';
+import { useToast } from '@/context/ToastContext'; // Import useToast
 
 export default function Inscription() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { showToast } = useToast(); // Initialize useToast
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     if (password !== confirm) {
-      setError("Les mots de passe ne correspondent pas.");
+      showToast("Les mots de passe ne correspondent pas.", 'error'); // Use showToast for error
       setLoading(false);
       return;
     }
@@ -29,19 +29,20 @@ export default function Inscription() {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, 'users', cred.user.uid), {
         email,
-        name: email.split('@')[0], // Extract name from email as in prototype
-        role: 'user', // Default role
-        credits: 3, // 3 credits as per prototype
+        name: email.split('@')[0],
+        role: 'user',
+        credits: 3,
         createdAt: new Date(),
       });
-      router.push('/dashboard'); // Redirect to dashboard
+      showToast("Compte créé avec succès ! Redirection...", 'success'); // Use showToast for success
+      router.push('/dashboard');
     } catch (e: any) {
       if (e.code === 'auth/email-already-in-use') {
-        setError('Cette adresse email est déjà utilisée.');
+        showToast('Cette adresse email est déjà utilisée.', 'error');
       } else if (e.code === 'auth/weak-password') {
-        setError('Le mot de passe doit contenir au moins 6 caractères.');
+        showToast('Le mot de passe doit contenir au moins 6 caractères.', 'error');
       } else {
-        setError('Une erreur est survenue. Veuillez réessayer.');
+        showToast('Une erreur est survenue. Veuillez réessayer.', 'error');
       }
     } finally {
       setLoading(false);
@@ -55,7 +56,7 @@ export default function Inscription() {
         <div className="bg-blue-50 text-brand-700 p-3 rounded-md text-sm mb-6 text-center">
           🎁 Offre de lancement : <strong>3 crédits offerts</strong> à l'inscription !
         </div>
-        {error && <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm mb-4">{error}</div>}
+        
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Email universitaire</label>
